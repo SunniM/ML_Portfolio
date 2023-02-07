@@ -1,0 +1,84 @@
+---
+title: "Regression"
+output: html_notebook
+author: CS 4375.004 - Sunni Magan
+date: 03/07/2023
+---
+## Introduction
+
+This notebook explores the fuel consumption of cars from the years 2000-2022. 
+
+Source: [https://www.kaggle.com/datasets/ahmettyilmazz/fuel-consumption](https://www.kaggle.com/datasets/ahmettyilmazz/fuel-consumption)
+
+### About The Data
+
+#### Model
+
+- 4WD/4X4 = Four-wheel drive
+- AWD = All-wheel drive
+- CNG = Compressed natural gas
+- FFV = Flexible-fuel vehicle
+- NGV = Natural gas vehicle
+- \# = High output engine that provides more power than the standard engine of the same size
+
+#### Transmission
+
+- A = Automatic
+- AM = Automated manual
+- AS = Automatic with select shift
+- AV = Continuously variable
+- M = Manual
+- 3 - 10 = Number of gears
+
+#### Fuel Type
+- X = Regular gasoline
+- Z = Premium gasoline
+- D = Diesel
+- E = Ethanol (E85)
+- N = Natural Gas
+
+#### Fuel Consumption
+City and highway fuel consumption ratings are shown in litres per 100 kilometres (L/100 km) - combined rating (55% city, 45% hwy) is shown in L/100 km and in miles per imperial gallon (mpg)
+
+CO2 Emissions (g/km),Estimated tailpipe carbon dioxide emissions (in grams per kilometre) are based on fuel type and the combined fuel consumption rating.
+
+## Data Cleaning
+Multiple factors in the database do not provide uniform data.
+```{r}
+df <- read.csv('Fuel_Consumption_2000-2022.csv')
+```
+
+
+```{r}
+df$MAKE <- tolower(df$MAKE)
+df$MAKE <- as.factor(df$MAKE)
+```
+The MAKE column provides car makes, however the capitalization is not consistant.
+
+```{r}
+df$VEHICLE.CLASS <- tolower(df$VEHICLE.CLASS)
+df$VEHICLE.CLASS <- gsub(":", " -", df$VEHICLE.CLASS)
+df$VEHICLE.CLASS <- as.factor(df$VEHICLE.CLASS)
+```
+The VEHICLE.CLASS column has a similar capitalization issue as MAKE. However, it also has differing punctuation.
+
+```{r}
+df$TRANSMISSION <- as.factor((df$TRANSMISSION))
+df$FUEL <- as.factor(df$FUEL)
+df$MODEL <- as.factor(df$MODEL)
+```
+The TRANSMISSION, FUEL, and MODEL columns are all uniform and simply need to be converted to a factor
+
+## Train/Test Split
+
+```{r}
+set.seed(1234)
+i <- sample(1:nrow(df), 0.8*nrow(df), replace=FALSE)
+train <- df[i,]
+test <- df[-i,]
+```
+
+## Data Exploration
+```{r}
+summary(df)
+```
