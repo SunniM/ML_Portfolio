@@ -1,73 +1,130 @@
 ---
 title: "Regression"
-output: html_notebook
-author: CS 4375.004 - Sunni Magan
-date: 03/07/2023
+author: "Sunni Magan"
+date: "03/07/2023"
+output:
+  word_document: default
+  html_notebook: default
+  pdf_document: default
 ---
+
 ## Introduction
 
-This notebook explores the fuel consumption of cars from the years 2000-2022. 
+This notebook explores the relationship between fuel consumption and carbon 
+dioxide emissions of retail cars in Canada
 
 Source: [https://www.kaggle.com/datasets/ahmettyilmazz/fuel-consumption](https://www.kaggle.com/datasets/ahmettyilmazz/fuel-consumption)
 
 ### About The Data
 
-#### Model
 
-- 4WD/4X4 = Four-wheel drive
-- AWD = All-wheel drive
-- CNG = Compressed natural gas
-- FFV = Flexible-fuel vehicle
-- NGV = Natural gas vehicle
-- \# = High output engine that provides more power than the standard engine of the same size
 
-#### Transmission
+#### YEAR
 
-- A = Automatic
-- AM = Automated manual
-- AS = Automatic with select shift
-- AV = Continuously variable
-- M = Manual
-- 3 - 10 = Number of gears
+ - 2000 - 2022
 
-#### Fuel Type
-- X = Regular gasoline
-- Z = Premium gasoline
-- D = Diesel
-- E = Ethanol (E85)
-- N = Natural Gas
+#### MAKE
 
-#### Fuel Consumption
-City and highway fuel consumption ratings are shown in litres per 100 kilometres (L/100 km) - combined rating (55% city, 45% hwy) is shown in L/100 km and in miles per imperial gallon (mpg)
+ - 52 well known car brands
 
-CO2 Emissions (g/km),Estimated tailpipe carbon dioxide emissions (in grams per kilometre) are based on fuel type and the combined fuel consumption rating.
+#### MODEL
 
-## Data Cleaning
-Multiple factors in the database do not provide uniform data.
+ - 4WD/4X4 = Four-wheel drive
+ - AWD = All-wheel drive
+ - CNG = Compressed natural gas
+ - FFV = Flexible-fuel vehicle
+ - NGV = Natural gas vehicle
+ - \# = High output engine that provides more power than the standard engine of
+ the same size
+ 
+#### VEHICLE.CLASS
+ - compact
+ - full-size
+ - pickup truck - standard
+ - pickup truck - small
+ - mid-size
+ - minicompact
+ - minivan
+ - special purpose vehicle
+ - station wagon - mid-size
+ - station wagon - small
+ - subcompact
+ - suv
+ - suv - small
+ - suv - standard
+ - two-seater
+ - van - cargo
+ - van - passenger
+
+#### ENGINE.SIZE
+
+ - Cylinder volume of engine in liters
+ 
+#### CYLINDERS
+
+ - \# of cylinders the engine has
+ 
+#### TRANSMISSION
+ 
+ - A = Automatic
+ - AM = Automated manual
+ - AS = Automatic with select shift
+ - AV = Continuously variable
+ - M = Manual
+ - 3 - 10 = Number of gears
+ 
+#### FUEL
+
+ - X = Regular gasoline
+ - Z = Premium gasoline
+ - D = Diesel
+ - E = Ethanol (E85)
+ - N = Natural Gas
+ 
+#### FUEL.CONSUMPTION
+##### HWY.LP100KM
+  
+  - Highway fuel consumption in L/100km
+  
+##### COMB.LP100KM
+
+ - Combined city/highway fuel consumption in L/100km
+  
+##### COMB.MPG
+
+ - Combined city/highway fuel consumption in mpg
+
+#### EMISSIONS
+
+ - Estimated tailpipe carbon dioxide emissions in g/km
+
+
 ```{r}
-df <- read.csv('Fuel_Consumption_2000-2022.csv')
+df <- read.csv("Fuel_Consumption.csv")
+str(df)
 ```
 
-
+### Data Cleaning
 ```{r}
 df$MAKE <- tolower(df$MAKE)
 df$MAKE <- as.factor(df$MAKE)
-```
-The MAKE column provides car makes, however the capitalization is not consistant.
 
-```{r}
+df$MODEL <- tolower(df$MODEL)
+df$MODEL <- as.factor(df$MODEL)
+
 df$VEHICLE.CLASS <- tolower(df$VEHICLE.CLASS)
 df$VEHICLE.CLASS <- gsub(":", " -", df$VEHICLE.CLASS)
 df$VEHICLE.CLASS <- as.factor(df$VEHICLE.CLASS)
-```
-The VEHICLE.CLASS column has a similar capitalization issue as MAKE. However, it also has differing punctuation.
 
-```{r}
-df$TRANSMISSION <- as.factor((df$TRANSMISSION))
+df$TRANSMISSION <- as.factor(df$TRANSMISSION)
 df$FUEL <- as.factor(df$FUEL)
-df$MODEL <- as.factor(df$MODEL)
 ```
-The TRANSMISSION, FUEL, and MODEL columns are all uniform and simply need to be converted to a factor
+Before the qualitative data can be converted to factors, it needs to be cleaned.
+Some of the features have inconsistent capitalization or punctuation which needs
+to be addressed.
+```{r}
+str(df)
+```
 
 ## Train/Test Split
 
@@ -77,8 +134,186 @@ i <- sample(1:nrow(df), 0.8*nrow(df), replace=FALSE)
 train <- df[i,]
 test <- df[-i,]
 ```
+Performing an 80/20 split on the data to create training and testing sets
 
 ## Data Exploration
+Now that the data is formatted in more appropriate datatypes, we can now explore the data to find relationships
+
+### Data Summary
 ```{r}
-summary(df)
+summary(train)
 ```
+### Finding Correlations
+```{r}
+pairs(train)
+```
+
+```{r}
+plot(train$CYLINDERS, train$ENGINE.SIZE)
+```
+There are trivial correlation such as engine size and number of cylinders which we will ignore.
+```{r}
+plot(train$ENGINE.SIZE, train$CITY.LP100KM)
+```
+There are also slight linear relationships between engine size and fuel consumption, however there is a lot of noise.
+```{r}
+cor(train[,9:13])
+```
+There does seem to be some strong linear relationships between fuel consumption and emission
+```{r}
+par(mfrow = c(2,3))
+plot(train$COMB.LP100KM, train$EMISSIONS)
+plot(train$COMB.LP100KM[train$FUEL == 'D'], train$EMISSIONS[train$FUEL == 'D'], main = "Fuel Type D")
+plot(train$COMB.LP100KM[train$FUEL == 'E'], train$EMISSIONS[train$FUEL == 'E'], main = "Fuel Type E")
+plot(train$COMB.LP100KM[train$FUEL == 'N'], train$EMISSIONS[train$FUEL == 'N'], main = "Fuel Type N")
+plot(train$COMB.LP100KM[train$FUEL == 'X'], train$EMISSIONS[train$FUEL == 'X'], main = "Fuel Type X")
+plot(train$COMB.LP100KM[train$FUEL == 'Z'], train$EMISSIONS[train$FUEL == 'Z'], main = "Fuel Type Z")
+par(mfrow = c(1,1))
+
+```
+As we can see, there are multiple separate linear relationships between fuel 
+consumption and CO2 emissions. This may mean one of the other features may be 
+affecting this relationship. The separate relationships appear to be discrete.
+There are about 5 distinct linear relationship, which also correspond with the 5 
+fuel types.
+
+```{r}
+barplot(table(df$FUEL))
+summary(df$train)
+```
+Based on the distribution of the fuel type on the data set, it seems like a 
+better idea to to create a linear model for each fuel type. For this notebook, 
+let's focus only on the most common fuel types, regular (X). This means we will 
+have to re-sample our testing and training data to get an 80/20 split on the 
+selected fuel type.
+
+### Resampling Data
+```{r}
+df <- df[df$FUEL == 'X',]
+set.seed(1234)
+i <- sample(1:nrow(df), 0.8*nrow(df), replace=FALSE)
+train <- df[i,]
+test <- df[-i,]
+```
+
+## Linear Regression Model
+```{r}
+plot(train$COMB.LP100KM, train$EMISSIONS)
+model1 = lm(EMISSIONS~COMB.LP100KM, data=train)
+abline(model1, col='red')
+summary(model1)
+```
+The summary of this model shows promising results. First of all, the Std. Error 
+values are low, which indicates a low variance in the estimate and its; actual 
+value. Secondly, we have a '***' p-value. This means we have strong evidence to 
+reject the null hypothesis and that our predictor and target variable are 
+related. Thirdly, the t-value, which measures the amount of standard deviations
+away from zero our estimate is. In this case, the t-value is very high. Lastly, 
+the Multiple R-squared statistic shows that more than 99% of the variance is
+explained by the predictor.
+
+```{r}
+par(mfrow=c(2,2))
+plot(model1)
+```
+
+These graphs are difficult to interpret. When looking at the Residual vs Fitted 
+graph. The line seemed to be horizontal, however, the points do not seem to be 
+even distributed on either size of the line. The Scaled-Location is similar in 
+that the points are not even distributed on a horizontal line. This could mean 
+there is more than just a linear relationship between the predictor and target 
+variable. The Normal Q-Q Plot seems to have trouble following the diagonal line,
+especially in the extreme cases. By looking at the Residuals vs Leverage
+graph,  it can be seen that all of the points are well withing Cook's distance
+since the boundary lines do not even appear on the graph.
+
+```{r}
+model2 <- lm(EMISSIONS~COMB.LP100KM+CYLINDERS+ENGINE.SIZE, data=train)
+summary(model2)
+
+par(mfrow=c(2,2))
+plot(model2)
+```
+
+```{r}
+model3 <- lm(EMISSIONS~CITY.LP100KM+HWY.LP100KM, data=train)
+summary(model3)
+par(mfrow=c(2,2))
+plot(model3)
+```
+Just by looking at the summaries of each model, it is not obvious which model 
+it the best. Among all three models, the p-values, Multiple R-squared, and 
+Std. Error are all around the same area. The t-value in the first model is very
+high. It lowers in the second model. Additionally, adding the engine size and 
+number of cylinders to the model seems to be irrelevant because their respective
+t-values are quite low compared to the independent fuel consumption of model 1. 
+It can also be seen when comparing the plots of models 1 and 2, that there are 
+not many changes between the two models. There are more data points in model 2 
+but they have the same distribution problems that model 1 has. The Residual vs 
+Fitted values are not as evenly distributed as one would like. In the Residuals
+vs Leverage graph however the points in model 2 are not as stretched as in model 
+1. This brings all of the highly influential points closer to the rest of the
+data.
+
+The t-value in model 3, while not as significant as in model 2, is still less
+than the the singular fuel consumption t-value in model 1When comparing the plots
+of model 1 and 3, some of the problems in model 1 are solved in model 3. When
+looking at the Residuals vs Fitted graphs, in both the original and the scaled
+versions, the data points are more evenly distributed along the horizontal line.
+This is evident by looking at the Normal Q-Q graph. In model 3, the data points 
+more closely follow the linear line. In the Residuals vs Leverage graph, the 
+outliers are shrunk even further than both model 1 and 2 to the point where they
+almost blend in with the  rest of the data.While there are still some far right
+points, they still fall easily within Cook's distance. For these reason, it seems
+as though model 3 is the best choice out of the 3.
+
+```{r}
+actual <- test$EMISSIONS
+```
+### Model 1 Metrics
+```{r}
+predicted <- predict(model1, test)
+residuals <- predicted - actual
+
+correlation <- cor(predicted, actual)
+paste("COR: ", correlation)
+
+mse <- mean(residuals^2)
+paste("MSE: ", mse)
+
+rmse <- sqrt(mse)
+paste("RMSE: ", rmse)
+```
+
+### Model 2 Metrics
+```{r}
+predicted <- predict(model2, test)
+residuals <- predicted - actual
+
+correlation <- cor(predicted, actual)
+paste("COR: ", correlation)
+
+mse <- mean(residuals^2)
+paste("MSE: ", mse)
+
+rmse <- sqrt(mse)
+paste("RMSE: ", rmse)
+```
+
+### Model 3 Metrics
+```{r}
+predicted <- predict(model3, test)
+residuals <- predicted - actual
+
+correlation <- cor(predicted, actual)
+paste("COR: ", correlation)
+
+mse <- mean(residuals^2)
+paste("MSE: ", mse)
+
+rmse <- sqrt(mse)
+paste("RMSE: ", rmse)
+```
+According to these metrics, model 2 preformed the best out of all three models.
+This contradicts the analysis deon in the previous step. It is not clear what
+the reason is for this.
