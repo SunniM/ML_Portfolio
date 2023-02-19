@@ -1,14 +1,18 @@
 ---
 title: "Regression"
 author: "Sunni Magan"
-date: "03/07/2023"
-output:
-  word_document: default
-  html_notebook: default
-  pdf_document: default
+date: "02/07/2023"
+output: html_document
 ---
 
 ## Introduction
+
+Linear regression is an analysis technique which attempts to find linear
+relationships between features in a dataset. The way it does this is by calculating
+the residuals (difference) between a predictor's value and some arbitrary line.
+It adjusts the  slope of this line by reducing the sum of squared residuals. The
+line with the least sum of squared residuals is an estimate for a linear relationship 
+between a predictor variable and some target variable.
 
 This notebook explores the relationship between fuel consumption and carbon 
 dioxide emissions of retail cars in Canada

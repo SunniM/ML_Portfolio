@@ -1,0 +1,151 @@
+---
+title: "Classification"
+author: "Sunni Magan"
+date: "02/14/2023"
+---
+
+## Introduction
+
+Linear Classifiers are models which attempt to find a line which can linearly separate two classes of data. This is a binary classification techique where one side of the line contains observations of one class, and the other side of the line contains observations belonging to the other. The two methods of linear classification explored in the notebook are Logistic Regression, and Naive Bayes. Logistic Regression maximizes the log-likelihood to estimate the probability of an event occurring. Naive Bayes instead uses Bayes Theorem to to estimate the probability. Logistic Regression is a fast, probabilistic method which works well on linearly separable data. However, it is susceptible to underfitting the data is not perfectly linearly separable. Naive Bayes is powerful even on smaller datasets and is relatively simple to implement, However, on larger datasets, it may under perform. This could be due to the fact that Naive Bayes "naively" assumes that the features are independent.
+
+Logistic regression is what is known as a discriminative classifier and Naive Bayes is a generative classifier. A generative classifier means you can "generate" new data from the result because you have directly calculated the posterior from prior probabilities. However in a discriminative classifier, you are learning the posterior probability directly form the data, which mean you cannot create new data from it.
+
+This notebook analyzes the information of credit card users in Taiwan from April 2005 to September 2005. Using linear classifiers we will predict whether a credit card user would default payment.
+
+Source: <https://www.kaggle.com/datasets/uciml/default-of-credit-card-clients-dataset>
+
+### About the data
+
+-   ID: ID of each client
+-   LIMIT_BAL: Amount of given credit in NT dollars (includes individual and family/supplementary credit
+-   SEX: Gender (1=male, 2=female)
+-   EDUCATION: (1=graduate school, 2=university, 3=high school, 4=others, 5=unknown, 6=unknown)
+-   MARRIAGE: Marital status (1=married, 2=single, 3=others)
+-   AGE: Age in years
+-   PAY_0: Repayment status in September, 2005 (-1=pay duly, 1=payment delay for one month, 2=payment delay for two months, ... 8=payment delay for eight months, 9=payment delay for nine months and above)
+-   PAY_2: Repayment status in August, 2005 (scale same as above)
+-   PAY_3: Repayment status in July, 2005 (scale same as above)
+-   PAY_4: Repayment status in June, 2005 (scale same as above)
+-   PAY_5: Repayment status in May, 2005 (scale same as above)
+-   PAY_6: Repayment status in April, 2005 (scale same as above)
+-   BILL_AMT1: Amount of bill statement in September, 2005 (NT dollar)
+-   BILL_AMT2: Amount of bill statement in August, 2005 (NT dollar)
+-   BILL_AMT3: Amount of bill statement in July, 2005 (NT dollar)
+-   BILL_AMT4: Amount of bill statement in June, 2005 (NT dollar)
+-   BILL_AMT5: Amount of bill statement in May, 2005 (NT dollar)
+-   BILL_AMT6: Amount of bill statement in April, 2005 (NT dollar)
+-   PAY_AMT1: Amount of previous payment in September, 2005 (NT dollar)
+-   PAY_AMT2: Amount of previous payment in August, 2005 (NT dollar)
+-   PAY_AMT3: Amount of previous payment in July, 2005 (NT dollar)
+-   PAY_AMT4: Amount of previous payment in June, 2005 (NT dollar)
+-   PAY_AMT5: Amount of previous payment in May, 2005 (NT dollar)
+-   PAY_AMT6: Amount of previous payment in April, 2005 (NT dollar)
+-   default.payment.next.month: Default payment (1=yes, 0=no)
+
+```{r}
+df <- read.csv("UCI_Credit_Card.csv")
+str(df)
+```
+
+## Data Cleaning
+
+```{r}
+df$SEX <- as.factor(df$SEX)
+df$EDUCATION <- as.factor(df$EDUCATION)
+df$MARRIAGE <- as.factor(df$MARRIAGE)
+df$default <- as.factor(df$default)
+```
+
+## Train/Test Split
+
+```{r}
+set.seed(1234)
+i <- sample(1:nrow(df), 0.8*nrow(df), replace=FALSE)
+train <- df[i,]
+test <- df[-i,]
+```
+
+Performing an 80/20 split on the data to create training and testing sets
+
+## Data Exploration
+
+```{r}
+str(train)
+summary(train)
+head(train)
+```
+
+```{r}
+cor(train$LIMIT_BAL, train$AGE)
+```
+
+Interestingly, there is a slight correlation between age and limit balance.
+
+```{r}
+barplot(table(train$EDUCATION))
+```
+
+As we can see fro the histogram, more than half of the observations are of people who have recieve some form of further education past highschool. This could be an import metric in determining weather people default on credit card payments.
+
+```{r}
+plot(train$default, train$AGE)
+```
+
+It seems like age alone is irrelevant to whether a person default on their credit card
+
+```{r}
+plot(train$AGE, train$LIMIT_BAL)
+```
+
+Here it seems as age is not relevant to credit limit either
+## Training Models
+### Logistic Regression
+
+```{r}
+model_1 <- glm(default~., data=train, family=binomial)
+summary(model_1)
+```
+
+
+
+### Naive Bayes
+
+```{r}
+library(e1071)
+model_2 <- naiveBayes(default~., data=train)
+summary(model_2)
+```
+## Results
+
+### Logistic Regression
+```{r}
+prob <- predict(model_1, newdata=test)
+p1 <- ifelse(prob >0.5, 1, 0)
+pred <- table(p1, test$default)
+acc <- mean(p1==test$default)
+error_rate <- 1 - acc
+sensitivity <- pred[1,1]/(pred[1,1]+pred[2,1])
+specificity <- pred[2,2]/(pred[2,2]+pred[1,2])
+pred
+paste("acc: ", acc)
+paste("error_rate: ", error_rate)
+paste("sensitivity: ", sensitivity)
+paste("specificity: ", specificity)
+```
+### Naive Bayes
+```{r}
+p2 <- predict(model_2, newdata=test)
+pred <- table(p2, test$default)
+acc <- mean(p2==test$default)
+error_rate <- 1 - acc
+sensitivity <- pred[1,1]/(pred[1,1]+pred[2,1])
+specificity <- pred[2,2]/(pred[2,2]+pred[1,2])
+pred
+paste("acc: ", acc)
+paste("error_rate: ", error_rate)
+paste("sensitivity: ", sensitivity)
+paste("specificity: ", specificity)
+```
+
+Of the two, Logistic Regression as a higher accuracy which means it classified 79.55% of the observations corectly as opposed to NB only classifying 70.17% correctly. This is useful, but it could be misleading if our data is skewed. To determine if the Logistic Regression model is actually classifying generally, we must look at other metrics. Logistic Regression also has a higher sensitivity which is the rate that it classifies 'true' observations correctly. However, the sensitivity rate (true negative rate) is very low for Logistic Regression. Overall, it seems that the Logistic Regression Model has not generaliesd well and is eager to classify obervations as true. For this reason, Naive Bayes seems to be the better model of the two.
+ 
