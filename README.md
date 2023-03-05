@@ -13,7 +13,7 @@
 >[Logistic Regression and Naïve Bayes](component_2/classification.pdf) - This note book analyzes the credit card payment data of people in Taiwan in 2005 to determine if they would would default on their credit card payments.
 
 ## Component 3 - Linear Models from Scratch in C++
-> [Logistic Regression](component_3/program_1.cpp) - Source code for a Logistic Regression model using sex and a single predictor to determine survivorship.
+> [Logistic Regression](component_3/program_1.cpp) - Source code for a Logistic Regression model using sex as a single predictor to determine survivorship.
 
 > [Naïve Bayes](component_3/program_2.cpp) - Source code for a Naïve Bayes model using age, sex, and passenger class as predictors to determine survivorship.
 
