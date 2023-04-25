@@ -35,4 +35,10 @@ The following notebooks analyze housing data of Perth, Australia
 This notbooks explores the different machine learning models and how they are implemented in the Python sklearn library.
 > [Notebook](component_5/ml_with_sklearn.pdf) - PDF notebook
 
-> [Source](compenent_5/ml_with_sklearn.ipynb) - ipynb file
+> [Source](component_5/ml_with_sklearn.ipynb) - ipynb file
+
+## Component 6 - Image Classification Deep Learning
+This notebooks uses Tensorflow Keras to explore different deep learning architectures to classify siz different types of garbage (cardboard, glass, metal, paper, plastic, and trash).
+> [Notebook](component_6/image-classification.pdf) - PDF Notebook
+
+> [Source](component_6/image-classification.ipynb) - ipynb file
