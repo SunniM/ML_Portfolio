@@ -19,7 +19,7 @@
 
 > [Report](component_3/report.pdf) - Contains a write ups and output of each model. Distinguishes between **Generative** and **Discriminative** Models. Addresses the need for **Reproducible Research** in Machine Learning
 
-## Compontent 4 - Similarity and Ensemble Methods Collaboration
+## Component 4 - Similarity and Ensemble Methods Collaboration
 The following notebooks analyze housing data of Perth, Australia
 > [Regresssion](component_4/part_1.pdf) - Sunni Magan 
 
@@ -30,3 +30,9 @@ The following notebooks analyze housing data of Perth, Australia
 > [Dimensionality Reduction](component_4/part_4.pdf) - John Lawler  
 
 > [Report](component_4/part_5.pdf) - Micah Katz
+
+## Component 5 - Machine Learning with sklearn
+This notbooks explores the different machine learning models and how they are implemented in the Python sklearn library.
+> [Notebook](component_5/ml_with_sklearn.pdf) - PDF notebook
+
+> [Source](compenent_5/ml_with_sklearn.ipynb) - ipynb file
