@@ -1,5 +1,8 @@
-# CS4375-Portfolio
+# ML-Portfolio
  Portfolio containing projects and assignments from CS 4375 - Introduction to Machine Learning
+ 
+## Summary
+Throughout this course, I have been given the opportunity to apply  what I habe learned in class, which is not often the case. Aside from the various machine learning models that I have learned, taking this class allowed me to develop stronger communication and collaboration skills. It also enabled me to improve my time management and analytical skills. This course has inspired me to use what I have learned to create a personal project which is a song recommender using the Spotify API. The repo can be found [here]()
 
 ## Component 0 - Getting Started  
 > [Machine Learning Overview](component_0/ml_overview.pdf) - An introduction into machine learning and its basic principles
@@ -27,7 +30,7 @@ The following notebooks analyze housing data of Perth, Australia
 
 > [Clustering](component_4/part_3.pdf) - Jaechul Kim  
 
-> [Dimensionality Reduction](component_4/part_4.pdf) - John Lawler  
+> [Dimensionality Reduction](component_4/part_4.pdf) - John Lawler
 
 > [Report](component_4/part_5.pdf) - Micah Katz
 
